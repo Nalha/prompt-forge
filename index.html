@@ -60,7 +60,7 @@
   }
   .plabel{font-family:'Cinzel',serif;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   .plabel .tagcount{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:0}
-  .out{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65;color:#d8cfc4;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);border-radius:2px;padding:12px 13px;word-break:break-word;min-height:42px}
+  .out{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65;color:#d8cfc4;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);border-radius:2px;padding:12px 13px;word-break:break-word;min-height:42px;white-space:pre-wrap;}
   .out .q{color:var(--gold-bright)}
   .negblock{margin-top:13px}
 
@@ -111,7 +111,7 @@
   .colour-push-row .push-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);white-space:nowrap;flex:none}
 
   /* clear button inline with label */
-  .clear-field{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;transition:.12s}
+  .clear-field{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;transition:.12s;margin-left:auto}
   .clear-field:hover{color:var(--crimson-bright)}
 
   /* ── Chip browse toggle button ───────────────────────────────────────── */
@@ -192,6 +192,13 @@
   .btn.ghost.danger:hover{border-color:var(--border-hot);color:var(--crimson-bright);background:rgba(223,43,67,.06)}
   .btn.copied{background:var(--gold)!important;border-color:var(--gold-bright)!important;color:#1a1206!important}
 
+  .char-heading{font-family:'Cinzel',serif;font-weight:500;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-bright);margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .add-char-btn{display:block;width:100%;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);background:none;border:1px dashed rgba(201,162,74,.3);cursor:pointer;padding:8px 14px;border-radius:2px;margin-top:16px;transition:.15s;text-align:center}
+  .add-char-btn:hover{border-color:var(--gold);background:rgba(201,162,74,.06)}
+  .char2-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 10px;border-bottom:1px solid var(--border);margin-bottom:13px}
+  .char-top{display:grid;grid-template-columns:1fr 1fr 2fr;gap:0 14px}
+  @media(max-width:520px){.char-top{grid-template-columns:1fr 1fr}.char-top .field:last-child{grid-column:1/-1}}
+
   footer{text-align:center;color:var(--muted);font-size:.88rem;padding:30px 0 6px}
   footer p{margin-bottom:8px;line-height:1.6}
   footer .order{font-style:italic}
@@ -223,11 +230,10 @@
     <div class="body">
       <div data-rebuild="foundation">
         <label class="cb"><input type="checkbox" id="qQuality" checked><span class="box"></span>Quality tags (masterpiece, best quality, very aesthetic, detailed face)</label>
-        <label class="cb" style="margin-top:9px"><input type="checkbox" id="qFace" checked><span class="box"></span>Face-detail boost, front-loaded (glowing eyes, sharp nose, defined lips)</label>
-        <label class="cb" style="margin-top:9px"><input type="checkbox" id="qRes"><span class="box"></span>Resolution boost (absurdres, highres) — recommended for Illustrious / NoobAI</label>
+        <label class="cb" style="margin-top:9px"><input type="checkbox" id="qRes"><span class="box"></span>Resolution boost (absurdres, highres)</label>
         <label class="cb" style="margin-top:9px"><input type="checkbox" id="qNewest"><span class="box"></span>"newest" — pulls from the most recent training data bucket</label>
       </div>
-      <div class="hint" style="margin-top:10px">Face boost goes first — front-weight nudges the model to render the face larger and sharper.</div>
+      <div class="hint" style="margin-top:10px">Front-loaded tags carry the most weight — quality tags are placed first to steer the model toward cleaner output.</div>
       <div class="field" style="margin-top:12px">
         <div class="field-head"><span>Foundation tags</span><button class="clear-field" data-clear="foundation">clear</button></div>
         <input type="text" id="foundation">
@@ -235,86 +241,49 @@
     </div>
   </div>
 
-  <!-- ── 02 Subject ────────────────────────────────────────────────────── -->
+  <!-- ── 02 Characters ────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">02</span> Subject</h2>
-    <div class="body">
-      <!-- Character count: per-gender number selectors -->
-      <label class="field" style="margin-bottom:10px"><span>Character count</span></label>
-      <div class="count-row">
-        <span class="count-label">Girls</span>
-        <div class="count-btns" id="countGirls" data-val="1">
-          <button class="count-btn" data-n="0">0</button>
-          <button class="count-btn active" data-n="1">1</button>
-          <button class="count-btn" data-n="2">2</button>
-          <button class="count-btn" data-n="3">3</button>
-          <button class="count-btn" data-n="4">4</button>
-          <button class="count-btn" data-n="5">5</button>
-          <button class="count-btn" data-n="6">6+</button>
-        </div>
-      </div>
-      <div class="count-row">
-        <span class="count-label">Boys</span>
-        <div class="count-btns" id="countBoys" data-val="0">
-          <button class="count-btn active" data-n="0">0</button>
-          <button class="count-btn" data-n="1">1</button>
-          <button class="count-btn" data-n="2">2</button>
-          <button class="count-btn" data-n="3">3</button>
-          <button class="count-btn" data-n="4">4</button>
-          <button class="count-btn" data-n="5">5</button>
-          <button class="count-btn" data-n="6">6+</button>
-        </div>
-      </div>
-      <div class="count-row">
-        <span class="count-label">Others</span>
-        <div class="count-btns" id="countOthers" data-val="0">
-          <button class="count-btn active" data-n="0">0</button>
-          <button class="count-btn" data-n="1">1</button>
-          <button class="count-btn" data-n="2">2</button>
-          <button class="count-btn" data-n="3">3</button>
-          <button class="count-btn" data-n="4">4</button>
-          <button class="count-btn" data-n="5">5</button>
-          <button class="count-btn" data-n="6">6+</button>
-        </div>
-      </div>
-      <div class="count-divider"></div>
-      <!-- Modifiers -->
-      <div class="checks" data-rebuild="count" style="margin-bottom:10px">
-        <label class="cb"><input type="checkbox" id="countSoloFocus"><span class="box"></span>solo focus</label>
-        <label class="cb"><input type="checkbox" id="countMaleFocus"><span class="box"></span>male focus</label>
-        <label class="cb"><input type="checkbox" id="countOtherFocus"><span class="box"></span>other focus</label>
-        <label class="cb"><input type="checkbox" id="countNoHumans"><span class="box"></span>no humans</label>
-      </div>
-      <div class="hint" style="margin-bottom:10px">"solo" is added to the prompt automatically when count is 1, and to the negative when count is 2+.</div>
-      <div class="field" style="margin-bottom:13px">
-        <div class="field-head"><span>Count tags</span><button class="clear-field" data-clear="count">clear</button></div>
-        <input type="text" id="count">
-      </div>
-      <div class="field">
-        <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="subject">clear</button></div>
-        <input type="text" id="subject" placeholder="e.g. succubus, mature female, dark queen">
-        <button class="chip-toggle" data-panel="panelSubject">browse tags <span class="ct-arr">▾</span></button>
-        <div class="chip-panel" id="panelSubject">
-          <div class="chip-search-wrap">
-            <span class="chip-search-icon">⌕</span>
-            <input class="chip-search" placeholder="filter subject tags…" data-chips="chipsSubject">
-          </div>
-          <div class="chips" id="chipsSubject"></div>
-          <div class="no-match" data-for="chipsSubject">No matching tags.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── 03 Appearance ─────────────────────────────────────────────────── -->
-  <div class="section">
-    <h2><span class="num">03</span> Appearance</h2>
+    <h2><span class="num">02</span> Characters</h2>
     <div class="body">
 
-      <!-- Hair -->
-      <p class="subhead">Hair</p>
+      <!-- Character 1 -->
+      <p class="char-heading" id="char1AppearanceLabel" style="display:none">Character 1</p>
+      <div class="char-top" style="margin-bottom:13px">
+        <label class="field" style="margin-bottom:0">
+          <span>Gender</span>
+          <select id="char1">
+            <option value="">— none —</option>
+            <option value="girl" selected>girl</option>
+            <option value="boy">boy</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <label class="field" style="margin-bottom:0">
+          <span>Position</span>
+          <select id="char1Pos">
+            <option value="">— none —</option>
+            <option value="on the left">left</option>
+            <option value="in the center">center</option>
+            <option value="on the right">right</option>
+          </select>
+        </label>
+        <div class="field" style="margin-bottom:0">
+          <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="subject">clear</button></div>
+          <input type="text" id="subject" placeholder="e.g. succubus, mature female, dark queen">
+        </div>
+      </div>
+      <button class="chip-toggle" data-panel="panelSubject" style="margin-bottom:11px">browse subject tags <span class="ct-arr">▾</span></button>
+      <div class="chip-panel" id="panelSubject" style="margin-bottom:11px">
+        <div class="chip-search-wrap">
+          <span class="chip-search-icon">⌕</span>
+          <input class="chip-search" placeholder="filter subject tags…" data-chips="chipsSubject">
+        </div>
+        <div class="chips" id="chipsSubject"></div>
+        <div class="no-match" data-for="chipsSubject">No matching tags.</div>
+      </div>
+
       <div class="field">
-        <div class="field-head"><span>Hair tags</span><button class="clear-field" data-clear="hair">clear</button></div>
+        <div class="field-head"><span>Hair</span><button class="clear-field" data-clear="hair">clear</button></div>
         <input type="text" id="hair" placeholder="e.g. long hair, crimson hair, windswept hair">
         <button class="chip-toggle" data-panel="panelHair">browse tags <span class="ct-arr">▾</span></button>
         <div class="chip-panel" id="panelHair">
@@ -333,32 +302,39 @@
         </div>
       </div>
 
-      <!-- Eyes -->
-      <p class="subhead">Eyes</p>
       <div class="field">
-        <div class="field-head"><span>Eye tags</span><button class="clear-field" data-clear="eyes">clear</button></div>
-        <input type="text" id="eyes" placeholder="e.g. red eyes, glowing eyes, slit pupils">
-        <button class="chip-toggle" data-panel="panelEyes">browse tags <span class="ct-arr">▾</span></button>
-        <div class="chip-panel" id="panelEyes">
+        <div class="field-head"><span>Face</span><button class="clear-field" data-clear="face">clear</button></div>
+        <input type="text" id="face" placeholder="e.g. red eyes, glowing eyes, parted lips, sharp nose">
+        <button class="chip-toggle" data-panel="panelFace">browse tags <span class="ct-arr">▾</span></button>
+        <div class="chip-panel" id="panelFace">
           <div class="colour-push-row" style="margin-top:0;margin-bottom:9px">
-            <span class="push-label">Colour</span>
-            <select id="eyeColour" class="colour-select colour-push"
-                    data-target="eyes" data-suffix=" eyes"
+            <span class="push-label">Eye colour</span>
+            <select id="faceColour" class="colour-select colour-push"
+                    data-target="face" data-suffix=" eyes"
                     data-placeholder="— pick eye colour —"></select>
           </div>
           <div class="chip-search-wrap">
             <span class="chip-search-icon">⌕</span>
-            <input class="chip-search" placeholder="filter eye feature tags…" data-chips="chipsEyes">
+            <input class="chip-search" placeholder="filter face tags…" data-chips="chipsFace">
           </div>
-          <div class="chips" id="chipsEyes"></div>
-          <div class="no-match" data-for="chipsEyes">No matching tags.</div>
+          <div class="chips" id="chipsFace"></div>
+          <div class="no-match" data-for="chipsFace">No matching tags.</div>
         </div>
       </div>
 
-      <!-- Features: chip buttons behind browse toggle -->
-      <p class="subhead">Features</p>
       <div class="field">
-        <div class="field-head"><span>Feature tags</span><button class="clear-field" data-clear="feat">clear</button></div>
+        <div class="field-head"><span>Skin</span><button class="clear-field" data-clear="skin">clear</button></div>
+        <input type="text" id="skin" placeholder="e.g. pale skin, tan skin, dark skin">
+        <div class="colour-push-row">
+          <span class="push-label">Skin tone</span>
+          <select id="skinColour" class="colour-select colour-push"
+                  data-target="skin" data-suffix=" skin"
+                  data-placeholder="— pick skin tone —"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span>Features</span><button class="clear-field" data-clear="feat">clear</button></div>
         <input type="text" id="feat" placeholder="e.g. demon horns, fangs, crown">
         <button class="chip-toggle" data-panel="panelFeatures">browse tags <span class="ct-arr">▾</span></button>
         <div class="chip-panel" id="panelFeatures">
@@ -370,15 +346,9 @@
           <div class="no-match" data-for="chipsFeatures">No matching tags.</div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── 04 Outfit ──────────────────────────────────────────────────────── -->
-  <div class="section">
-    <h2><span class="num">04</span> Outfit</h2>
-    <div class="body">
       <div class="field">
-        <div class="field-head"><span>Clothing / armor</span><button class="clear-field" data-clear="outfit">clear</button></div>
+        <div class="field-head"><span>Outfit</span><button class="clear-field" data-clear="outfit">clear</button></div>
         <input type="text" id="outfit" placeholder="e.g. ornate black and gold armor, flowing red cape">
         <button class="chip-toggle" data-panel="panelOutfit">browse tags <span class="ct-arr">▾</span></button>
         <div class="chip-panel" id="panelOutfit">
@@ -390,12 +360,133 @@
           <div class="no-match" data-for="chipsOutfit">No matching tags.</div>
         </div>
       </div>
+
+      <!-- Add Character button -->
+      <button class="add-char-btn" id="addCharBtn">+ Add Character</button>
+
+      <!-- Character 2 block -->
+      <div id="char2AppearanceBlock" style="display:none">
+        <div class="count-divider" style="margin:16px 0 0"></div>
+        <div class="char2-header">
+          <p class="char-heading" style="margin:0;border:none;padding:0">Character 2</p>
+          <button class="clear-field" id="removeCharBtn">× remove</button>
+        </div>
+
+        <div class="char-top" style="margin-bottom:13px">
+          <label class="field" style="margin-bottom:0">
+            <span>Gender</span>
+            <select id="char2">
+              <option value="" selected>— none —</option>
+              <option value="girl">girl</option>
+              <option value="boy">boy</option>
+              <option value="other">other</option>
+            </select>
+          </label>
+          <label class="field" style="margin-bottom:0">
+            <span>Position</span>
+            <select id="char2Pos">
+              <option value="">— none —</option>
+              <option value="on the left">left</option>
+              <option value="in the center">center</option>
+              <option value="on the right">right</option>
+            </select>
+          </label>
+          <div class="field" style="margin-bottom:0">
+            <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="c2subject">clear</button></div>
+            <input type="text" id="c2subject" placeholder="e.g. knight, elf, warrior">
+          </div>
+        </div>
+        <button class="chip-toggle" data-panel="panelC2Subject" style="margin-bottom:11px">browse subject tags <span class="ct-arr">▾</span></button>
+        <div class="chip-panel" id="panelC2Subject" style="margin-bottom:11px">
+          <div class="chip-search-wrap">
+            <span class="chip-search-icon">⌕</span>
+            <input class="chip-search" placeholder="filter subject tags…" data-chips="chipsC2Subject">
+          </div>
+          <div class="chips" id="chipsC2Subject"></div>
+          <div class="no-match" data-for="chipsC2Subject">No matching tags.</div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Hair</span><button class="clear-field" data-clear="c2hair">clear</button></div>
+          <input type="text" id="c2hair" placeholder="e.g. short silver hair, windswept">
+          <button class="chip-toggle" data-panel="panelC2Hair">browse tags <span class="ct-arr">▾</span></button>
+          <div class="chip-panel" id="panelC2Hair">
+            <div class="colour-push-row" style="margin-top:0;margin-bottom:9px">
+              <span class="push-label">Colour</span>
+              <select id="c2hairColour" class="colour-select colour-push"
+                      data-target="c2hair" data-suffix=" hair"
+                      data-placeholder="— pick hair colour —"></select>
+            </div>
+            <div class="chip-search-wrap">
+              <span class="chip-search-icon">⌕</span>
+              <input class="chip-search" placeholder="filter hair style tags…" data-chips="chipsC2Hair">
+            </div>
+            <div class="chips" id="chipsC2Hair"></div>
+            <div class="no-match" data-for="chipsC2Hair">No matching tags.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Face</span><button class="clear-field" data-clear="c2face">clear</button></div>
+          <input type="text" id="c2face" placeholder="e.g. blue eyes, sharp features">
+          <div class="colour-push-row">
+            <span class="push-label">Eye colour</span>
+            <select id="c2faceColour" class="colour-select colour-push"
+                    data-target="c2face" data-suffix=" eyes"
+                    data-placeholder="— pick eye colour —"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Skin</span><button class="clear-field" data-clear="c2skin">clear</button></div>
+          <input type="text" id="c2skin" placeholder="e.g. pale skin, tan skin">
+          <div class="colour-push-row">
+            <span class="push-label">Skin tone</span>
+            <select id="c2skinColour" class="colour-select colour-push"
+                    data-target="c2skin" data-suffix=" skin"
+                    data-placeholder="— pick skin tone —"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span>Features</span><button class="clear-field" data-clear="c2feat">clear</button></div>
+          <input type="text" id="c2feat" placeholder="e.g. elf ears, pointed ears, wolf ears">
+          <button class="chip-toggle" data-panel="panelC2Features">browse tags <span class="ct-arr">▾</span></button>
+          <div class="chip-panel" id="panelC2Features">
+            <div class="chip-search-wrap">
+              <span class="chip-search-icon">⌕</span>
+              <input class="chip-search" placeholder="filter feature tags…" data-chips="chipsC2Features">
+            </div>
+            <div class="chips" id="chipsC2Features"></div>
+            <div class="no-match" data-for="chipsC2Features">No matching tags.</div>
+          </div>
+        </div>
+
+        <p class="subhead">Outfit</p>
+        <div class="field">
+          <div class="field-head"><span>Outfit tags</span><button class="clear-field" data-clear="c2outfit">clear</button></div>
+          <input type="text" id="c2outfit" placeholder="e.g. blue mage robes, silver armor">
+          <button class="chip-toggle" data-panel="panelC2Outfit">browse tags <span class="ct-arr">▾</span></button>
+          <div class="chip-panel" id="panelC2Outfit">
+            <div class="chip-search-wrap">
+              <span class="chip-search-icon">⌕</span>
+              <input class="chip-search" placeholder="filter outfit tags…" data-chips="chipsC2Outfit">
+            </div>
+            <div class="chips" id="chipsC2Outfit"></div>
+            <div class="no-match" data-for="chipsC2Outfit">No matching tags.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden count field (used for prompt assembly in single-char mode) -->
+      <input type="text" id="count" style="display:none">
+
     </div>
   </div>
 
-  <!-- ── 05 Pose & Expression ───────────────────────────────────────────── -->
+  <!-- ── 03 Pose & Expression ───────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">05</span> Pose &amp; Expression</h2>
+    <h2><span class="num">03</span> Pose &amp; Expression</h2>
     <div class="body">
       <div class="checks" data-field="pose">
         <label class="cb"><input type="checkbox" value="looking at viewer"><span class="box"></span>looking at viewer</label>
@@ -424,7 +515,7 @@
 
   <!-- ── 06 Camera ─────────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">06</span> Camera</h2>
+    <h2><span class="num">04</span> Camera</h2>
     <div class="body">
       <div class="hint">Tighter framing = bigger face = more detail. Go wide only when the silhouette needs it.</div>
       <div class="two">
@@ -462,7 +553,7 @@
 
   <!-- ── 07 Setting ────────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">07</span> Setting</h2>
+    <h2><span class="num">05</span> Setting</h2>
     <div class="body">
       <div class="field">
         <div class="field-head"><span>Location / background</span><button class="clear-field" data-clear="setting">clear</button></div>
@@ -482,7 +573,7 @@
 
   <!-- ── 08 Lighting & Mood ─────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">08</span> Lighting &amp; Mood</h2>
+    <h2><span class="num">06</span> Lighting &amp; Mood</h2>
     <div class="body">
       <p class="subhead">Directional</p>
       <div class="checks" id="lightDir" data-field="lighting">
@@ -541,7 +632,7 @@
 
   <!-- ── 09 Style ───────────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">09</span> Style</h2>
+    <h2><span class="num">07</span> Style</h2>
     <div class="body">
       <div class="hint">Rendering technique (line style, shading) is handled by HotBunny's preset — focus on direction, composition, and mood here.</div>
       <p class="subhead">Artistic Direction</p>
@@ -581,7 +672,7 @@
 
   <!-- ── 10 Colour ──────────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">10</span> Colour Palette</h2>
+    <h2><span class="num">08</span> Colour Palette</h2>
     <div class="body">
       <div class="field">
         <div class="field-head"><span>Overall palette</span><button class="clear-field" data-clear="colour">clear</button></div>
@@ -601,7 +692,7 @@
 
   <!-- ── 11 Negative ────────────────────────────────────────────────────── -->
   <div class="section">
-    <h2><span class="num">11</span> Negative</h2>
+    <h2><span class="num">09</span> Negative</h2>
     <div class="body">
       <div class="hint">Baseline is pre-loaded below. Checkboxes toggle situational tags in/out of the field. Edit freely — the field is the output.</div>
       <div class="checks" id="neg" data-field="negative" style="margin-top:10px">
@@ -624,7 +715,7 @@
   </div>
 
   <footer>
-    <p class="order">Tags assemble in guide order: foundation → subject → appearance → outfit → pose → camera → setting → lighting → style → colour.</p>
+    <p class="order">Tags assemble in guide order: foundation → character (subject → hair → face → skin → features → outfit) → pose → camera → setting → lighting → style → colour.</p>
     <div class="disclaimer">
       <p>This tool runs entirely in your browser. Nothing you type is sent anywhere.</p>
       <p>Free to use, copy, modify, and rehost without restriction. No licence, no credit required.</p>

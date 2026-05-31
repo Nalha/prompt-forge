@@ -7,7 +7,6 @@ const val = id => { const el = $(id); return el ? el.value.trim().replace(/,\s*$
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const QUALITY  = 'masterpiece, best quality, very aesthetic, detailed face';
-const FACE     = 'glowing eyes, sharp nose, defined lips';
 const RES      = 'absurdres, highres';
 const NEWEST   = 'newest';
 const NEG_BASE = 'worst quality, low quality, lowres, jpeg artifacts, bad anatomy, extra digits, extra limbs, watermark, signature, text, oldest, early, displeasing, chromatic aberration, unfinished';
@@ -26,70 +25,83 @@ function toggle(fieldId, tag) {
 function rebuildFoundation() {
   const parts = [];
   if ($('qQuality').checked) parts.push(QUALITY);
-  if ($('qFace').checked)    parts.push(FACE);
   if ($('qRes').checked)     parts.push(RES);
   if ($('qNewest').checked)  parts.push(NEWEST);
   $('foundation').value = parts.join(', ');
 }
 
 function rebuildCount() {
-  const noHumans = $('countNoHumans')?.checked;
+  const c1 = $('char1')?.value || '';
+  const c2 = $('char2')?.value || '';
+
   let countStr = '';
 
-  if (noHumans) {
-    countStr = 'no humans';
-  } else {
-    const n = id => parseInt($(`count${id}`)?.dataset.val ?? '0');
-    const girls  = n('Girls');
-    const boys   = n('Boys');
-    const others = n('Others');
-
-    const tag = (count, singular, plural) => {
-      if (!count) return '';
-      if (count === 1) return singular;
-      if (count <= 5)  return `${count}${plural}`;
-      return `6+${plural}`;
-    };
-
-    const total = girls + boys + others;
-
-    const parts = [
-      tag(girls,  '1girl',  'girls'),
-      tag(boys,   '1boy',   'boys'),
-      tag(others, '1other', 'others'),
-    ].filter(Boolean);
-
-    // solo: auto into positive when exactly 1 character, auto into negative when 2+, nowhere when 0
-    if (total === 1) parts.push('solo');
-    if ($('countSoloFocus')?.checked)  parts.push('solo focus');
-    if ($('countMaleFocus')?.checked)  parts.push('male focus');
-    if ($('countOtherFocus')?.checked) parts.push('other focus');
-
-    countStr = parts.join(', ');
-
-    // Sync solo in negative field
-    const negField = $('negative');
-    if (negField) {
-      let neg = negField.value.split(',').map(s => s.trim()).filter(Boolean);
-      if (total > 1 && !neg.includes('solo')) neg.push('solo');
-      else if (total !== 1) neg = neg.filter(t => t !== 'solo'); // remove from neg when 0 or 1
-      negField.value = neg.join(', ');
+  if (c1 && !c2) {
+    countStr = `1${c1}, solo`;
+  } else if (!c1 && c2) {
+    countStr = `1${c2}, solo`;
+  } else if (c1 && c2) {
+    if (!$('char1Pos').value) {
+      $('char1Pos').value = 'on the left';
+      $('char2Pos').value = 'on the right';
+    }
+    if (c1 == c2) {
+      countStr = c1 === 'other' ? '2others' : `2${c1}s`;
+    } else {
+      countStr = `1${c1}, 1${c2}`;
     }
   }
 
   $('count').value = countStr;
+
+  // Sync solo in negative field
+  const negField = $('negative');
+  if (negField) {
+    let neg = negField.value.split(',').map(s => s.trim()).filter(Boolean);
+    const twoChars = !!(c1 && c2);
+    if (twoChars && !neg.includes('solo')) neg.push('solo');
+    else if (!twoChars) neg = neg.filter(t => t !== 'solo');
+    negField.value = neg.join(', ');
+  }
+
+  updateChar2Visibility();
+}
+
+function updateChar2Visibility() {
+  const c2set = !!($('char2')?.value);
+  const block = $('char2AppearanceBlock');
+  const label = $('char1AppearanceLabel');
+  const addBtn = $('addCharBtn');
+  if (block)  block.style.display  = c2set ? '' : 'none';
+  if (label)  label.style.display  = c2set ? '' : 'none';
+  if (addBtn) addBtn.style.display = c2set ? 'none' : '';
 }
 
 // ── Build prompt: join all section text fields in order ───────────────────
 function buildPrompt() {
+  const c1 = $('char1')?.value || '';
+  const c2 = $('char2')?.value || '';
+
+  if (c1 && c2) {
+    // Two-character mode: each character's tags clustered behind their gender anchor.
+    // Blocks joined with \n — acts as a weak segmentation cue in the attention pass.
+    const c1Block = [`${c1} ${val('char1Pos')}`, val('subject'), val('hair'), val('face'), val('skin'), val('feat'), val('outfit')].filter(Boolean).join(', ');
+    const c2Block = [`${c2} ${val('char2Pos')}`, val('c2subject'), val('c2hair'), val('c2face'), val('c2skin'), val('c2feat'), val('c2outfit')].filter(Boolean).join(', ');
+    const shared  = [val('pose'), val('camera'), val('setting'), val('lighting'), val('style'), val('colour')].filter(Boolean).join(', ');
+    return [val('foundation'), val('count'), c1Block, c2Block, shared].filter(Boolean).join('\n');
+  }
+
+  // Single character
   return [
     val('foundation'),
     val('count'),
     val('subject'),
     val('hair'),
-    val('eyes'),
+    val('face'),
+    val('skin'),
     val('feat'),
     val('outfit'),
+    val('char1Pos'),
     val('pose'),
     val('camera'),
     val('setting'),
@@ -131,10 +143,7 @@ function syncCheckboxes() {
 // ── Render preview ─────────────────────────────────────────────────────────
 function render() {
   const p = buildPrompt();
-  const highlighted = p
-    .replace(QUALITY, `<span class="q">${QUALITY}</span>`)
-    .replace(FACE,    `<span class="q">${FACE}</span>`);
-  $('outPrompt').innerHTML = highlighted || '<span style="color:#5e554e">…start filling the form…</span>';
+  $('outPrompt').innerHTML = p || '<span style="color:#5e554e">…start filling the form…</span>';
   $('outNeg').textContent = buildNeg();
   const n = p ? p.split(',').map(s => s.trim()).filter(Boolean).length : 0;
   $('tagCount').textContent = n ? `${n} tags` : '';
@@ -171,14 +180,18 @@ function initColourSelects() {
 // ── Init: populate chip containers ────────────────────────────────────────
 function initChips() {
   const defs = [
-    { id: 'chipsSubject',  tags: TAGS.subjects,       target: 'subject' },
-    { id: 'chipsHair',     tags: TAGS.hairFeatures,   target: 'hair'    },
-    { id: 'chipsEyes',     tags: TAGS.eyeFeatures,    target: 'eyes'    },
-    { id: 'chipsFeatures', tags: TAGS.bodyFeatures,   target: 'feat'    },
-    { id: 'chipsOutfit',   tags: TAGS.outfits,        target: 'outfit'  },
-    { id: 'chipsSetting',  tags: TAGS.settings,       target: 'setting' },
-    { id: 'chipsStyle',    tags: TAGS.styles,         target: 'style'   },
-    { id: 'chipsColour',   tags: TAGS.colourPalettes, target: 'colour'  },
+    { id: 'chipsSubject',    tags: TAGS.subjects,       target: 'subject'   },
+    { id: 'chipsHair',       tags: TAGS.hairFeatures,   target: 'hair'      },
+    { id: 'chipsFace',       tags: TAGS.faceFeatures,   target: 'face'      },
+    { id: 'chipsFeatures',   tags: TAGS.bodyFeatures,   target: 'feat'      },
+    { id: 'chipsOutfit',     tags: TAGS.outfits,        target: 'outfit'    },
+    { id: 'chipsC2Subject',  tags: TAGS.subjects,       target: 'c2subject' },
+    { id: 'chipsC2Hair',     tags: TAGS.hairFeatures,   target: 'c2hair'    },
+    { id: 'chipsC2Features', tags: TAGS.bodyFeatures,   target: 'c2feat'    },
+    { id: 'chipsC2Outfit',   tags: TAGS.outfits,        target: 'c2outfit'  },
+    { id: 'chipsSetting',    tags: TAGS.settings,       target: 'setting'   },
+    { id: 'chipsStyle',      tags: TAGS.styles,         target: 'style'     },
+    { id: 'chipsColour',     tags: TAGS.colourPalettes, target: 'colour'    },
   ];
   defs.forEach(({ id, tags, target }) => {
     const el = $(id);
@@ -199,15 +212,29 @@ function initFields() {
 // EVENT HANDLERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ── Count buttons ──────────────────────────────────────────────────────────
+// ── Character selects ──────────────────────────────────────────────────────
+document.addEventListener('change', e => {
+  if (!e.target.matches('#char1, #char2')) return;
+  rebuildCount();
+  render();
+});
+
+// ── Add / Remove character ─────────────────────────────────────────────────
+$('addCharBtn').addEventListener('click', () => {
+  const c2el = $('char2');
+  if (c2el) c2el.value = 'girl';
+  rebuildCount();
+  render();
+});
+
 document.addEventListener('click', e => {
-  const btn = e.target.closest('.count-btn');
-  if (!btn) return;
-  const group = btn.closest('.count-btns');
-  if (!group) return;
-  group.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  group.dataset.val = btn.dataset.n;
+  if (e.target.id !== 'removeCharBtn') return;
+  const c2el = $('char2');
+  if (c2el) c2el.value = '';
+  ['c2subject', 'c2hair', 'c2face', 'c2skin', 'c2feat', 'c2outfit']
+    .forEach(id => { const el = $(id); if (el) el.value = ''; });
+  ['c2hairColour', 'c2faceColour', 'c2skinColour', 'char2Pos']
+    .forEach(id => { const el = $(id); if (el) el.selectedIndex = 0; });
   rebuildCount();
   render();
 });
@@ -292,31 +319,24 @@ document.addEventListener('input', e => {
 // ── Reset ──────────────────────────────────────────────────────────────────
 $('resetAll').addEventListener('click', () => {
   // Clear all section text fields
-  ['subject', 'hair', 'eyes', 'feat', 'outfit', 'pose',
-   'camera', 'setting', 'lighting', 'style', 'colour']
+  ['subject', 'hair', 'face', 'skin', 'feat', 'outfit',
+   'c2subject', 'c2hair', 'c2face', 'c2skin', 'c2feat', 'c2outfit',
+   'pose', 'camera', 'setting', 'lighting', 'style', 'colour']
     .forEach(id => { const el = $(id); if (el) el.value = ''; });
 
-  // Reset colour-push selects and camera selects
-  ['hairColour', 'eyeColour', 'framing', 'angle'].forEach(id => {
+  // Reset colour-push selects, position selects, and camera selects
+  ['hairColour', 'faceColour', 'skinColour', 'c2hairColour', 'c2faceColour', 'c2skinColour',
+   'char1Pos', 'char2Pos', 'framing', 'angle'].forEach(id => {
     const el = $(id);
     if (el) { el.selectedIndex = 0; el.dataset.prev = ''; }
   });
 
-  // Reset count buttons to girls=1, boys=0, others=0
-  [['countGirls', '1'], ['countBoys', '0'], ['countOthers', '0']].forEach(([id, def]) => {
-    const group = $(id);
-    if (!group) return;
-    group.dataset.val = def;
-    group.querySelectorAll('.count-btn').forEach(b => b.classList.toggle('active', b.dataset.n === def));
-  });
-
-  // Reset count modifiers
-  ['countSoloFocus', 'countMaleFocus', 'countOtherFocus', 'countNoHumans']
-    .forEach(id => { const el = $(id); if (el) el.checked = false; });
+  // Reset character selects
+  const c1el = $('char1'); if (c1el) c1el.value = 'girl';
+  const c2el = $('char2'); if (c2el) c2el.value = '';
 
   // Reset foundation checkboxes
   $('qQuality').checked = true;
-  $('qFace').checked    = true;
   $('qRes').checked     = false;
   $('qNewest').checked  = false;
 

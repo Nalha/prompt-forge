@@ -48,16 +48,29 @@ const TAGS = {
     "two-tone hair", "streaked hair", "hair highlights", "gradient hair",
   ],
 
-  // ── Eye features (not colour — that's the select) ─────────────────────
-  eyeFeatures: [
+  // ── Face features: eyes, nose, lips (colour is the dropdown) ─────────
+  faceFeatures: [
+    // eyes
     "glowing eyes",
     "piercing gaze", "sharp eyes", "intense eyes",
     "half-closed eyes", "narrowed eyes", "bedroom eyes", "sleepy eyes",
     "slit pupils", "cat eyes", "snake eyes",
-    "empty eyes", "hollow eyes", "vacant eyes",
-    "heterochromia", "mismatched eyes", "multicolored eyes",
+    "empty eyes", "hollow eyes",
+    "heterochromia", "multicolored eyes",
     "star-shaped pupils", "heart-shaped pupils",
-    "tears", "teary eyes", "glassy eyes",
+    "teary eyes", "glassy eyes",
+    // nose
+    "sharp nose", "pointed nose", "button nose", "aquiline nose",
+    // lips / mouth
+    "parted lips", "open mouth",
+    "pouty lips", "plump lips", "thin lips",
+    "glossy lips", "matte lips",
+    "dark lips", "black lips", "red lips",
+    "lipstick",
+    // general face
+    "blush", "freckles",
+    "sharp features", "soft features",
+    "high cheekbones", "defined jaw",
   ],
 
   // ── Body features (section 03 — chip buttons, target: feat field) ────
