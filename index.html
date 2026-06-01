@@ -7,203 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0c090b;
-    --crimson:#b11226;
-    --crimson-bright:#df2b43;
-    --gold:#c9a24a;
-    --gold-bright:#e8c873;
-    --text:#ece3d8;
-    --muted:#897e76;
-    --border:rgba(201,162,74,.22);
-    --border-hot:rgba(223,43,67,.5);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:
-      radial-gradient(1200px 600px at 50% -10%, rgba(177,18,38,.18), transparent 60%),
-      radial-gradient(900px 500px at 90% 110%, rgba(201,162,74,.10), transparent 55%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Cormorant Garamond',Georgia,serif;
-    font-size:18px;
-    line-height:1.45;
-    padding:0 0 120px;
-    min-height:100vh;
-  }
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
-    mix-blend-mode:overlay;
-  }
-  .wrap{max-width:780px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
-
-  /* ── Header ─────────────────────────────────────────────────────────── */
-  header{text-align:center;padding:46px 0 26px}
-  header .mark{font-family:'Cinzel',serif;letter-spacing:.42em;font-size:.72rem;color:var(--crimson-bright);text-transform:uppercase;margin-bottom:10px}
-  header h1{
-    font-family:'Cinzel',serif;font-weight:700;font-size:2.7rem;line-height:1;
-    background:linear-gradient(180deg,var(--gold-bright),var(--gold) 55%,#8a6d28);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:0 2px 30px rgba(201,162,74,.15);
-  }
-  header p{color:var(--muted);font-style:italic;font-size:1.05rem;margin-top:8px}
-
-  /* ── Live preview ────────────────────────────────────────────────────── */
-  .preview{
-    border:1px solid var(--border);border-top:2px solid var(--crimson);
-    background:linear-gradient(180deg,rgba(177,18,38,.06),rgba(0,0,0,.25));
-    border-radius:3px;padding:18px;margin-bottom:30px;
-    box-shadow:0 18px 50px -20px rgba(0,0,0,.8);
-  }
-  .plabel{font-family:'Cinzel',serif;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-  .plabel .tagcount{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:0}
-  .out{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65;color:#d8cfc4;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);border-radius:2px;padding:12px 13px;word-break:break-word;min-height:42px;white-space:pre-wrap;}
-  .out .q{color:var(--gold-bright)}
-  .negblock{margin-top:13px}
-
-  /* ── Sections ────────────────────────────────────────────────────────── */
-  .section{border:1px solid var(--border);border-radius:3px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);margin-bottom:16px;overflow:hidden}
-  .section > h2{
-    font-family:'Cinzel',serif;font-weight:500;font-size:.78rem;letter-spacing:.22em;
-    text-transform:uppercase;color:var(--gold);
-    padding:13px 16px;border-bottom:1px solid var(--border);
-    display:flex;align-items:center;gap:10px;
-    background:rgba(177,18,38,.05);
-  }
-  .section > h2 .num{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--crimson-bright);border:1px solid var(--border-hot);border-radius:2px;padding:1px 6px}
-  .body{padding:15px 16px}
-  .hint{color:var(--muted);font-style:italic;font-size:.92rem;margin:0 0 12px}
-  .subhead{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:13px 0 7px;opacity:.75;border-bottom:1px solid rgba(201,162,74,.08);padding-bottom:4px}
-  .subhead:first-child{margin-top:0}
-
-  /* ── Form elements ───────────────────────────────────────────────────── */
-  label.field{display:block;margin-bottom:13px}
-  label.field:last-child{margin-bottom:0}
-  label.field > span,
-  .field-head > span{
-    display:block;font-family:'JetBrains Mono',monospace;font-size:.68rem;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px
-  }
-  .field{margin-bottom:13px}
-  .field:last-child{margin-bottom:0}
-  .field-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
-
-  input[type=text],select{
-    width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);
-    color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.85rem;
-    padding:9px 11px;border-radius:2px;transition:.18s;
-  }
-  input[type=text]:focus,select:focus{outline:none;border-color:var(--crimson-bright);box-shadow:0 0 0 3px rgba(223,43,67,.12),0 0 18px -6px rgba(223,43,67,.5)}
-  select{
-    appearance:none;cursor:pointer;
-    background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);
-    background-position:calc(100% - 17px) center,calc(100% - 12px) center;
-    background-size:5px 5px,5px 5px;background-repeat:no-repeat;
-  }
-  option{background:#171116;color:var(--text)}
-
-  /* colour-push row: sits below a text field, full width select */
-  .colour-push-row{display:flex;align-items:center;gap:9px;margin-top:7px}
-  .colour-push-row select{flex:1}
-  .colour-push-row .push-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);white-space:nowrap;flex:none}
-
-  /* clear button inline with label */
-  .clear-field{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;transition:.12s;margin-left:auto}
-  .clear-field:hover{color:var(--crimson-bright)}
-
-  /* ── Chip browse toggle button ───────────────────────────────────────── */
-  .chip-toggle{
-    font-family:'JetBrains Mono',monospace;font-size:.67rem;
-    color:var(--muted);background:none;
-    border:1px dashed rgba(201,162,74,.18);
-    cursor:pointer;padding:4px 10px;border-radius:2px;
-    margin-top:7px;transition:.15s;display:inline-flex;align-items:center;gap:5px;
-  }
-  .chip-toggle:hover{color:var(--gold);border-color:var(--border)}
-  .chip-toggle.open{color:var(--gold);border-color:var(--border)}
-  .chip-toggle .ct-arr{transition:transform .15s;display:inline-block;font-size:.6rem}
-  .chip-toggle.open .ct-arr{transform:rotate(180deg)}
-
-  /* ── Chip panel ──────────────────────────────────────────────────────── */
-  .chip-panel{display:none;margin-top:8px}
-  .chip-panel.open{display:block}
-
-  /* chip search input */
-  .chip-search-wrap{position:relative;margin-bottom:8px}
-  .chip-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.72rem;color:var(--muted);pointer-events:none}
-  .chip-search{
-    width:100%;background:rgba(0,0,0,.28);border:1px solid rgba(201,162,74,.14);
-    color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.74rem;
-    padding:6px 10px 6px 28px;border-radius:2px;transition:.15s;
-  }
-  .chip-search::placeholder{color:rgba(137,126,118,.55)}
-  .chip-search:focus{outline:none;border-color:rgba(201,162,74,.38);color:var(--text)}
-
-  /* chip buttons */
-  .chips{display:flex;flex-wrap:wrap;gap:6px}
-  .chip{
-    font-family:'JetBrains Mono',monospace;font-size:.7rem;cursor:pointer;
-    background:rgba(201,162,74,.07);border:1px solid var(--border);color:var(--gold);
-    padding:4px 9px;border-radius:2px;transition:.15s;user-select:none;
-  }
-  .chip:hover{background:rgba(223,43,67,.16);border-color:var(--border-hot);color:var(--gold-bright)}
-  .chip.active{background:rgba(223,43,67,.22);border-color:var(--crimson-bright);color:#fff}
-  .chip.hidden{display:none}
-  .no-match{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);padding:4px 2px;display:none;font-style:italic}
-
-  /* ── Checkboxes ──────────────────────────────────────────────────────── */
-  .checks{display:grid;grid-template-columns:1fr 1fr;gap:7px 12px}
-  @media(max-width:520px){.checks{grid-template-columns:1fr}}
-  label.cb{display:flex;align-items:center;gap:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#c7bdb2}
-  label.cb input{display:none}
-  label.cb .box{width:16px;height:16px;border:1px solid var(--border);border-radius:2px;flex:none;position:relative;transition:.15s;background:rgba(0,0,0,.3)}
-  label.cb input:checked + .box{background:var(--crimson);border-color:var(--crimson-bright);box-shadow:0 0 10px -2px var(--crimson-bright)}
-  label.cb input:checked + .box::after{content:"";position:absolute;left:4.5px;top:1px;width:4px;height:9px;border:solid var(--gold-bright);border-width:0 2px 2px 0;transform:rotate(43deg)}
-  label.cb:hover .box{border-color:var(--crimson-bright)}
-
-  /* ── Character count selector ────────────────────────────────────────── */
-  .count-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .count-row:last-child{margin-bottom:0}
-  .count-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:52px;flex:none}
-  .count-btns{display:flex;gap:3px;flex-wrap:wrap}
-  .count-btn{
-    font-family:'JetBrains Mono',monospace;font-size:.72rem;
-    background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--muted);
-    padding:4px 8px;border-radius:2px;cursor:pointer;transition:.12s;min-width:28px;text-align:center;line-height:1;
-  }
-  .count-btn:hover{border-color:var(--gold);color:var(--gold)}
-  .count-btn.active{background:rgba(223,43,67,.2);border-color:var(--crimson-bright);color:#fff;box-shadow:0 0 8px -3px var(--crimson-bright)}
-  .count-divider{width:100%;height:1px;background:var(--border);margin:10px 0}
-
-  /* ── Layout helpers ──────────────────────────────────────────────────── */
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-  @media(max-width:520px){.two{grid-template-columns:1fr}}
-
-  /* ── Bottom bar ──────────────────────────────────────────────────────── */
-  .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(12,9,11,.6),rgba(12,9,11,.97));backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:12px 18px;display:flex;gap:10px;justify-content:center}
-  .btn{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;cursor:pointer;border-radius:2px;padding:12px 20px;transition:.18s;border:1px solid;max-width:300px;flex:1}
-  .btn.prim{background:var(--crimson);border-color:var(--crimson-bright);color:#fff;box-shadow:0 6px 24px -8px var(--crimson-bright)}
-  .btn.prim:hover{background:var(--crimson-bright);transform:translateY(-1px)}
-  .btn.ghost{background:transparent;border-color:var(--border);color:var(--gold)}
-  .btn.ghost:hover{border-color:var(--gold);background:rgba(201,162,74,.08)}
-  .btn.ghost.danger:hover{border-color:var(--border-hot);color:var(--crimson-bright);background:rgba(223,43,67,.06)}
-  .btn.copied{background:var(--gold)!important;border-color:var(--gold-bright)!important;color:#1a1206!important}
-
-  .char-heading{font-family:'Cinzel',serif;font-weight:500;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-bright);margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-  .add-char-btn{display:block;width:100%;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--gold);background:none;border:1px dashed rgba(201,162,74,.3);cursor:pointer;padding:8px 14px;border-radius:2px;margin-top:16px;transition:.15s;text-align:center}
-  .add-char-btn:hover{border-color:var(--gold);background:rgba(201,162,74,.06)}
-  .char2-header{display:flex;justify-content:space-between;align-items:center;padding:12px 0 10px;border-bottom:1px solid var(--border);margin-bottom:13px}
-  .char-top{display:grid;grid-template-columns:1fr 1fr 2fr;gap:0 14px}
-  @media(max-width:520px){.char-top{grid-template-columns:1fr 1fr}.char-top .field:last-child{grid-column:1/-1}}
-
-  footer{text-align:center;color:var(--muted);font-size:.88rem;padding:30px 0 6px}
-  footer p{margin-bottom:8px;line-height:1.6}
-  footer .order{font-style:italic}
-  footer .disclaimer{font-size:.78rem;opacity:.7;max-width:600px;margin:16px auto 0;border-top:1px solid rgba(201,162,74,.1);padding-top:14px}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
@@ -248,7 +52,7 @@
 
       <!-- Character 1 -->
       <p class="char-heading" id="char1AppearanceLabel" style="display:none">Character 1</p>
-      <div class="char-top" style="margin-bottom:13px">
+      <div class="two" style="margin-bottom:11px">
         <label class="field" style="margin-bottom:0">
           <span>Gender</span>
           <select id="char1">
@@ -265,12 +69,16 @@
             <option value="on the left">left</option>
             <option value="in the center">center</option>
             <option value="on the right">right</option>
+            <option value="at the top">top</option>
+            <option value="at the bottom">bottom</option>
+            <option value="in the foreground">front</option>
+            <option value="in the background">behind</option>
           </select>
         </label>
-        <div class="field" style="margin-bottom:0">
-          <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="subject">clear</button></div>
-          <input type="text" id="subject" placeholder="e.g. succubus, mature female, dark queen">
-        </div>
+      </div>
+      <div class="field" style="margin-bottom:7px">
+        <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="subject">clear</button></div>
+        <input type="text" id="subject" placeholder="e.g. fox, demon, knight, vampire">
       </div>
       <button class="chip-toggle" data-panel="panelSubject" style="margin-bottom:11px">browse subject tags <span class="ct-arr">▾</span></button>
       <div class="chip-panel" id="panelSubject" style="margin-bottom:11px">
@@ -328,7 +136,7 @@
         <div class="colour-push-row">
           <span class="push-label">Skin tone</span>
           <select id="skinColour" class="colour-select colour-push"
-                  data-target="skin" data-suffix=" skin"
+                  data-target="skin" data-suffix=" skin" data-list="skin"
                   data-placeholder="— pick skin tone —"></select>
         </div>
       </div>
@@ -372,7 +180,7 @@
           <button class="clear-field" id="removeCharBtn">× remove</button>
         </div>
 
-        <div class="char-top" style="margin-bottom:13px">
+        <div class="two" style="margin-bottom:11px">
           <label class="field" style="margin-bottom:0">
             <span>Gender</span>
             <select id="char2">
@@ -391,10 +199,10 @@
               <option value="on the right">right</option>
             </select>
           </label>
-          <div class="field" style="margin-bottom:0">
-            <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="c2subject">clear</button></div>
-            <input type="text" id="c2subject" placeholder="e.g. knight, elf, warrior">
-          </div>
+        </div>
+        <div class="field" style="margin-bottom:7px">
+          <div class="field-head"><span>Who / what they are</span><button class="clear-field" data-clear="c2subject">clear</button></div>
+          <input type="text" id="c2subject" placeholder="e.g. fox, elf, knight, vampire">
         </div>
         <button class="chip-toggle" data-panel="panelC2Subject" style="margin-bottom:11px">browse subject tags <span class="ct-arr">▾</span></button>
         <div class="chip-panel" id="panelC2Subject" style="margin-bottom:11px">
@@ -427,13 +235,22 @@
         </div>
 
         <div class="field">
-          <div class="field-head"><span>Face</span><button class="clear-field" data-clear="c2face">clear</button></div>
-          <input type="text" id="c2face" placeholder="e.g. blue eyes, sharp features">
-          <div class="colour-push-row">
-            <span class="push-label">Eye colour</span>
-            <select id="c2faceColour" class="colour-select colour-push"
-                    data-target="c2face" data-suffix=" eyes"
-                    data-placeholder="— pick eye colour —"></select>
+          <div class="field-head"><span>Face tags</span><button class="clear-field" data-clear="c2face">clear</button></div>
+          <input type="text" id="c2face" placeholder="e.g. sharp eyes, parted lips, mole under eye">
+          <button class="chip-toggle" data-panel="panelC2Face">browse tags <span class="ct-arr">▾</span></button>
+          <div class="chip-panel" id="panelC2Face">
+            <div class="colour-push-row" style="margin-top:0;margin-bottom:9px">
+              <span class="push-label">Eye colour</span>
+              <select id="c2faceColour" class="colour-select colour-push"
+                      data-target="c2face" data-suffix=" eyes"
+                      data-placeholder="— pick eye colour —"></select>
+            </div>
+            <div class="chip-search-wrap">
+              <span class="chip-search-icon">⌕</span>
+              <input class="chip-search" placeholder="filter face tags…" data-chips="chipsC2Face">
+            </div>
+            <div class="chips" id="chipsC2Face"></div>
+            <div class="no-match" data-for="chipsC2Face">No matching tags.</div>
           </div>
         </div>
 
@@ -443,7 +260,7 @@
           <div class="colour-push-row">
             <span class="push-label">Skin tone</span>
             <select id="c2skinColour" class="colour-select colour-push"
-                    data-target="c2skin" data-suffix=" skin"
+                    data-target="c2skin" data-suffix=" skin" data-list="skin"
                     data-placeholder="— pick skin tone —"></select>
           </div>
         </div>
@@ -513,7 +330,7 @@
     </div>
   </div>
 
-  <!-- ── 06 Camera ─────────────────────────────────────────────────────── -->
+  <!-- ── 04 Camera ─────────────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">04</span> Camera</h2>
     <div class="body">
@@ -551,7 +368,7 @@
     </div>
   </div>
 
-  <!-- ── 07 Setting ────────────────────────────────────────────────────── -->
+  <!-- ── 05 Setting ────────────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">05</span> Setting</h2>
     <div class="body">
@@ -571,7 +388,7 @@
     </div>
   </div>
 
-  <!-- ── 08 Lighting & Mood ─────────────────────────────────────────────── -->
+  <!-- ── 06 Lighting & Mood ─────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">06</span> Lighting &amp; Mood</h2>
     <div class="body">
@@ -630,7 +447,7 @@
     </div>
   </div>
 
-  <!-- ── 09 Style ───────────────────────────────────────────────────────── -->
+  <!-- ── 07 Style ───────────────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">07</span> Style</h2>
     <div class="body">
@@ -670,7 +487,7 @@
     </div>
   </div>
 
-  <!-- ── 10 Colour ──────────────────────────────────────────────────────── -->
+  <!-- ── 08 Colour ──────────────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">08</span> Colour Palette</h2>
     <div class="body">
@@ -690,7 +507,7 @@
     </div>
   </div>
 
-  <!-- ── 11 Negative ────────────────────────────────────────────────────── -->
+  <!-- ── 09 Negative ────────────────────────────────────────────────────── -->
   <div class="section">
     <h2><span class="num">09</span> Negative</h2>
     <div class="body">

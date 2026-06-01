@@ -170,9 +170,10 @@ function filterChips(searchInput) {
 function initColourSelects() {
   document.querySelectorAll('.colour-select').forEach(sel => {
     const placeholder = sel.dataset.placeholder || '— add colour —';
+    const list = sel.dataset.list === 'skin' ? TAGS.skinTones : TAGS.colours;
     sel.innerHTML = [
       `<option value="">${placeholder}</option>`,
-      ...TAGS.colours.map(c => `<option value="${c}">${c}</option>`)
+      ...list.map(c => `<option value="${c}">${c}</option>`)
     ].join('');
   });
 }
@@ -187,10 +188,10 @@ function initChips() {
     { id: 'chipsOutfit',     tags: TAGS.outfits,        target: 'outfit'    },
     { id: 'chipsC2Subject',  tags: TAGS.subjects,       target: 'c2subject' },
     { id: 'chipsC2Hair',     tags: TAGS.hairFeatures,   target: 'c2hair'    },
+    { id: 'chipsC2Face',     tags: TAGS.faceFeatures,   target: 'c2face'    },
     { id: 'chipsC2Features', tags: TAGS.bodyFeatures,   target: 'c2feat'    },
     { id: 'chipsC2Outfit',   tags: TAGS.outfits,        target: 'c2outfit'  },
     { id: 'chipsSetting',    tags: TAGS.settings,       target: 'setting'   },
-    { id: 'chipsStyle',      tags: TAGS.styles,         target: 'style'     },
     { id: 'chipsColour',     tags: TAGS.colourPalettes, target: 'colour'    },
   ];
   defs.forEach(({ id, tags, target }) => {
