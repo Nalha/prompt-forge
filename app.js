@@ -11,12 +11,18 @@ const RES      = 'absurdres, highres';
 const NEWEST   = 'newest';
 const NEG_BASE = 'worst quality, low quality, lowres, jpeg artifacts, bad anatomy, extra digits, extra limbs, watermark, signature, text, oldest, early, displeasing, chromatic aberration, unfinished';
 
-// ── Toggle a single tag in/out of a text field ────────────────────────────
+// ── Toggle a tag (or comma-joined multi-tag) in/out of a text field ─────────
 function toggle(fieldId, tag) {
   const input = $(fieldId);
   if (!input || !tag) return;
+  const parts = tag.split(',').map(s => s.trim()).filter(Boolean);
   let cur = input.value.split(',').map(s => s.trim()).filter(Boolean);
-  cur = cur.includes(tag) ? cur.filter(t => t !== tag) : [...cur, tag];
+  const allPresent = parts.every(t => cur.includes(t));
+  if (allPresent) {
+    cur = cur.filter(t => !parts.includes(t));
+  } else {
+    parts.forEach(t => { if (!cur.includes(t)) cur.push(t); });
+  }
   input.value = cur.join(', ');
 }
 
@@ -135,7 +141,8 @@ function syncCheckboxes() {
     const fieldTags = $(group.dataset.field)?.value
       ?.split(',').map(s => s.trim()).filter(Boolean) ?? [];
     group.querySelectorAll('input[type=checkbox]').forEach(cb => {
-      cb.checked = fieldTags.includes(cb.value);
+      const parts = cb.value.split(',').map(s => s.trim()).filter(Boolean);
+      cb.checked = parts.every(t => fieldTags.includes(t));
     });
   });
 }
@@ -373,7 +380,7 @@ function fallback(text, done) {
 $('copyPrompt').addEventListener('click', e => copy(buildPrompt(), e.target, 'Copy Prompt'));
 $('copyNeg').addEventListener('click',    e => copy(buildNeg(),    e.target, 'Copy Negative'));
 
-// ── Boot ───────────────────────────────────────────────────────────────────
+// Boot
 initColourSelects();
 initChips();
 initFields();
