@@ -20,6 +20,13 @@
     <p>Fill what you want, leave the rest. It builds the prompt in the right order.</p>
   </header>
 
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="forge">Forge</button>
+    <button class="tab-btn" data-tab="chars">Characters</button>
+  </nav>
+
+  <div id="tabForge">
+
   <!-- Live preview -->
   <div class="preview">
     <div class="plabel"><span>Prompt</span><span class="tagcount" id="tagCount"></span></div>
@@ -541,6 +548,19 @@
       <p>All character names, franchise names, tag terminology, and any other intellectual property that may appear in generated prompts belong to their respective owners. This tool makes no claim over any of that content — it is simply an assistant for assembling text strings.</p>
     </div>
   </footer>
+  </div><!-- #tabForge -->
+
+  <div id="tabChars" style="display:none">
+    <div class="char-browser-bar">
+      <div class="chip-search-wrap" style="flex:1;margin-bottom:0">
+        <span class="chip-search-icon">⌕</span>
+        <input class="char-search-input" id="charSearch" placeholder="search by name, series, or any tag…">
+      </div>
+      <span class="char-count" id="charCount"></span>
+    </div>
+    <div id="charGrid" class="char-grid"></div>
+    <button id="charLoadMore" class="add-char-btn" style="display:none;margin-top:12px">Load more…</button>
+  </div><!-- #tabChars -->
 </div>
 
 <div class="bar">
@@ -551,6 +571,8 @@
 
 <!-- Data and logic loaded as separate files -->
 <script src="tags.js"></script>
+<script src="lib.js"></script>
+<script src="chars.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

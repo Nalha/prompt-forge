@@ -51,7 +51,7 @@ function rebuildCount() {
       $('char1Pos').value = 'on the left';
       $('char2Pos').value = 'on the right';
     }
-    if (c1 == c2) {
+    if (c1 === c2) {
       countStr = c1 === 'other' ? '2others' : `2${c1}s`;
     } else {
       countStr = `1${c1}, 1${c2}`;
@@ -83,38 +83,19 @@ function updateChar2Visibility() {
   if (addBtn) addBtn.style.display = c2set ? 'none' : '';
 }
 
-// ── Build prompt: join all section text fields in order ───────────────────
+// ── Build prompt: collect DOM values → delegate to pure buildPromptFromValues ──
 function buildPrompt() {
-  const c1 = $('char1')?.value || '';
-  const c2 = $('char2')?.value || '';
-
-  if (c1 && c2) {
-    // Two-character mode: each character's tags clustered behind their gender anchor.
-    // Blocks joined with \n — acts as a weak segmentation cue in the attention pass.
-    const c1Block = [`${c1} ${val('char1Pos')}`, val('subject'), val('hair'), val('face'), val('skin'), val('feat'), val('outfit')].filter(Boolean).join(', ');
-    const c2Block = [`${c2} ${val('char2Pos')}`, val('c2subject'), val('c2hair'), val('c2face'), val('c2skin'), val('c2feat'), val('c2outfit')].filter(Boolean).join(', ');
-    const shared  = [val('pose'), val('camera'), val('setting'), val('lighting'), val('style'), val('colour')].filter(Boolean).join(', ');
-    return [val('foundation'), val('count'), c1Block, c2Block, shared].filter(Boolean).join('\n');
-  }
-
-  // Single character
-  return [
-    val('foundation'),
-    val('count'),
-    val('subject'),
-    val('hair'),
-    val('face'),
-    val('skin'),
-    val('feat'),
-    val('outfit'),
-    val('char1Pos'),
-    val('pose'),
-    val('camera'),
-    val('setting'),
-    val('lighting'),
-    val('style'),
-    val('colour'),
-  ].filter(Boolean).join(', ');
+  return buildPromptFromValues({
+    char1: $('char1')?.value || '', char2: $('char2')?.value || '',
+    char1Pos: val('char1Pos'),  char2Pos: val('char2Pos'),
+    foundation: val('foundation'), count: val('count'),
+    subject: val('subject'), hair: val('hair'), face: val('face'),
+    skin: val('skin'), feat: val('feat'), outfit: val('outfit'),
+    c2subject: val('c2subject'), c2hair: val('c2hair'), c2face: val('c2face'),
+    c2skin: val('c2skin'), c2feat: val('c2feat'), c2outfit: val('c2outfit'),
+    pose: val('pose'), camera: val('camera'), setting: val('setting'),
+    lighting: val('lighting'), style: val('style'), colour: val('colour'),
+  });
 }
 
 // ── Build negative: just the negative text field ──────────────────────────
@@ -380,8 +361,146 @@ function fallback(text, done) {
 $('copyPrompt').addEventListener('click', e => copy(buildPrompt(), e.target, 'Copy Prompt'));
 $('copyNeg').addEventListener('click',    e => copy(buildNeg(),    e.target, 'Copy Negative'));
 
-// Boot
+// Boot — runs after all setup below is complete (see end of file)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHARACTER BROWSER
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+(function () {
+  const bar = document.querySelector('.bar');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      $('tabForge').style.display = tab === 'forge' ? '' : 'none';
+      $('tabChars').style.display = tab === 'chars'  ? '' : 'none';
+      if (bar) bar.style.display  = tab === 'forge' ? '' : 'none';
+      history.replaceState(null, '', '#' + tab);
+      if (tab === 'chars' && charData === null) loadChars();
+    });
+  });
+})();
+
+// ── State ──────────────────────────────────────────────────────────────────
+let charData  = null;   // null = not yet fetched
+let charQuery = '';
+let charShown = 60;
+const CHAR_PAGE = 60;
+
+// catTag / unesc / parseLine live in lib.js (loaded before this file).
+
+// ── Parse the pre-loaded character data ───────────────────────────────────
+function loadChars() {
+  charData = (typeof CHAR_RAW === 'string' ? CHAR_RAW : '')
+    .split('\n').map(parseLine).filter(Boolean);
+  renderChars();
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────────
+function getFiltered() {
+  if (!charData) return [];
+  const q = charQuery.trim().toLowerCase();
+  if (!q) return charData;
+  return charData.filter(c =>
+    c.name.toLowerCase().includes(q)   ||
+    c.series.toLowerCase().includes(q) ||
+    [...c.hair, ...c.face, ...c.feat, ...c.other].some(t => t.toLowerCase().includes(q))
+  );
+}
+
+// ── Render grid ────────────────────────────────────────────────────────────
+function renderChars() {
+  if (!charData) return;
+  const filtered = getFiltered();
+  const slice    = filtered.slice(0, charShown);
+
+  $('charCount').textContent = filtered.length === charData.length
+    ? `${charData.length.toLocaleString()} characters`
+    : `${filtered.length.toLocaleString()} / ${charData.length.toLocaleString()}`;
+
+  $('charGrid').innerHTML = slice.length
+    ? slice.map(cardHTML).join('')
+    : '<div class="char-loading">No matches.</div>';
+
+  const more    = $('charLoadMore');
+  const remain  = filtered.length - charShown;
+  more.style.display = remain > 0 ? '' : 'none';
+  if (remain > 0) more.textContent = `Load ${Math.min(CHAR_PAGE, remain)} more (${remain} remaining)`;
+}
+
+// ── Escape value for HTML attribute ───────────────────────────────────────
+function escAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Build one card's HTML ──────────────────────────────────────────────────
+function cardHTML(c) {
+  const pills = [
+    ...c.face.slice(0, 3).map(t => `<span class="ctag face">${t}</span>`),
+    ...c.feat.slice(0, 3).map(t => `<span class="ctag feat">${t}</span>`),
+    ...c.hair.slice(0, 4).map(t => `<span class="ctag hair">${t}</span>`),
+  ].slice(0, 8).join('');
+
+  const allTags   = escAttr([c.name, c.series, ...c.face, ...c.feat, ...c.hair, ...c.other].join(', '));
+  const nameField = escAttr([c.name, c.series].join(', '));
+  const hairField = escAttr(c.hair.join(', '));
+  const faceField = escAttr(c.face.join(', '));
+  const featField = escAttr(c.feat.join(', '));
+
+  return `<div class="char-card">
+  <div>
+    <div class="char-card-name">${c.name}</div>
+    <div class="char-card-series">${c.series}</div>
+  </div>
+  <div class="char-card-tags">${pills}</div>
+  <div class="char-card-actions">
+    <button class="char-action-btn copy" data-copy="${allTags}">Copy tags</button>
+    <button class="char-action-btn load"
+      data-name="${nameField}"
+      data-hair="${hairField}"
+      data-face="${faceField}"
+      data-feat="${featField}">Load into Forge →</button>
+  </div>
+</div>`;
+}
+
+// ── Search input ───────────────────────────────────────────────────────────
+$('charSearch').addEventListener('input', e => {
+  charQuery = e.target.value;
+  charShown = CHAR_PAGE;
+  renderChars();
+});
+
+// ── Load more ──────────────────────────────────────────────────────────────
+$('charLoadMore').addEventListener('click', () => {
+  charShown += CHAR_PAGE;
+  renderChars();
+});
+
+// ── Card buttons ───────────────────────────────────────────────────────────
+document.addEventListener('click', e => {
+  const copyBtn = e.target.closest('.char-action-btn.copy');
+  if (copyBtn) { copy(copyBtn.dataset.copy, copyBtn, 'Copy tags'); return; }
+
+  const loadBtn = e.target.closest('.char-action-btn.load');
+  if (loadBtn) {
+    if ($('subject')) $('subject').value = loadBtn.dataset.name || '';
+    if ($('hair'))    $('hair').value    = loadBtn.dataset.hair || '';
+    if ($('face'))    $('face').value    = loadBtn.dataset.face || '';
+    if ($('feat'))    $('feat').value    = loadBtn.dataset.feat || '';
+    document.querySelector('.tab-btn[data-tab="forge"]')?.click();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
+
+// ── Boot (must be last — tab listeners must be registered before hash check) ──
 initColourSelects();
 initChips();
 initFields();
 render();
+if (window.location.hash === '#chars') {
+  document.querySelector('.tab-btn[data-tab="chars"]')?.click();
+}
